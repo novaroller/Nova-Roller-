@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Roller – Descubre tu patín ideal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════ */
+:root{
+  --navy:   #1f1740;
+  --violet: #a570ff;
+  --teal:   #40d0d0;
+  --light:  #ebebe9;
+  --muted:  rgba(235,235,233,.5);
+  --card:   rgba(18,12,42,.8);
+  --bdr:    rgba(165,112,255,.2);
+  --grad:   linear-gradient(130deg,#a570ff,#40d0d0);
+  --gv:     rgba(165,112,255,.4);
+  --gt:     rgba(64,208,208,.3);
+  --r:      20px;
+  --rs:     13px;
+  --f:      'Inter',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--f);background:#08051a;color:var(--light);min-height:100dvh;overflow-x:hidden}
+
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+#app{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:28px 16px 64px}
+
+/* SCREENS */
+.scr{display:none;width:100%;max-width:740px}
+.scr.on{display:flex;flex-direction:column;align-items:center;animation:fu .42s cubic-bezier(.22,1,.36,1) both}
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* BRAND */
+.brand{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--violet);margin-bottom:38px;opacity:.7}
+
+/* INTRO */
+.pill{display:inline-flex;align-items:center;gap:7px;background:rgba(165,112,255,.09);border:1px solid rgba(165,112,255,.25);border-radius:100px;padding:6px 20px;font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--violet);margin-bottom:26px}
+.pill::before{content:'✦';font-size:9px}
+.h1{font-size:clamp(2.2rem,7vw,4rem);font-weight:900;line-height:1.09;text-align:center;margin-bottom:18px;letter-spacing:-.03em}
+.h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-size:1.04rem;font-weight:300;color:var(--muted);text-align:center;line-height:1.72;max-width:460px;margin-bottom:44px}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-family:var(--f);font-weight:600;font-size:.92rem;letter-spacing:.02em;border:none;cursor:pointer;border-radius:100px;padding:15px 36px;transition:transform .2s,box-shadow .2s;text-decoration:none;line-height:1}
+.btn-p{background:var(--grad);color:#fff;box-shadow:0 0 30px var(--gv)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 52px var(--gv),0 0 22px var(--gt)}
+.btn-p:disabled{opacity:.3;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-g{background:rgba(165,112,255,.08);border:1px solid rgba(165,112,255,.28);color:var(--violet)}
+.btn-g:hover{background:rgba(165,112,255,.18);transform:translateY(-1px)}
+.btn-g:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.btn-wa{background:linear-gradient(130deg,#25d366,#128c7e);color:#fff;font-size:.97rem;padding:16px 40px;box-shadow:0 0 28px rgba(37,211,102,.36)}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 0 48px rgba(37,211,102,.52)}
+
+/* CARD BASE */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:36px 32px;width:100%}
+@media(max-width:480px){.card{padding:24px 18px}}
+
+/* PROGRESS */
+.pw{width:100%;margin-bottom:28px}
+.pt{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);font-weight:500;margin-bottom:9px}
+.pb{height:3px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden}
+.pf{height:100%;background:var(--grad);border-radius:100px;transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px var(--gv)}
+
+/* QUESTION */
+.qchip{font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--violet);margin-bottom:9px;opacity:.72}
+.qtxt{font-size:1.2rem;font-weight:700;line-height:1.42;margin-bottom:24px;letter-spacing:-.015em}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;align-items:center;gap:13px;background:rgba(255,255,255,.033);border:1px solid rgba(255,255,255,.08);border-radius:var(--rs);padding:13px 17px;cursor:pointer;transition:all .17s;font-size:.91rem;color:var(--light);text-align:left;font-family:var(--f);width:100%}
+.opt:hover{background:rgba(165,112,255,.1);border-color:rgba(165,112,255,.36);transform:translateX(3px)}
+.opt.sel{background:rgba(165,112,255,.15);border-color:var(--violet);color:#fff}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.18);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .17s}
+.opt.sel .dot{background:var(--violet);border-color:var(--violet);box-shadow:0 0 8px var(--gv)}
+.opt.sel .dot::after{content:'';width:5px;height:5px;border-radius:50%;background:#fff}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px}
+
+/* ═══ RESULT ═══ */
+.rbadge{display:inline-flex;align-items:center;gap:8px;border-radius:100px;padding:7px 22px;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.lv-neb .rbadge{background:rgba(165,112,255,.12);border:1px solid var(--violet);color:var(--violet)}
+.lv-nov .rbadge{background:rgba(64,208,208,.11);border:1px solid var(--teal);color:var(--teal)}
+.lv-sup .rbadge{background:linear-gradient(130deg,rgba(165,112,255,.17),rgba(64,208,208,.17));border:1px solid rgba(165,112,255,.42);color:var(--light)}
+.rsubbadge{display:inline-flex;align-items:center;gap:6px;border-radius:100px;padding:5px 16px;font-size:.64rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--muted)}
+.rtitle{font-size:clamp(1.8rem,6vw,3rem);font-weight:900;text-align:center;margin-bottom:9px;letter-spacing:-.025em}
+.lv-neb .rtitle{color:var(--violet)}
+.lv-nov .rtitle{color:var(--teal)}
+.lv-sup .rtitle{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rdesc{font-size:.96rem;font-weight:300;color:var(--muted);text-align:center;line-height:1.72;max-width:500px;margin:0 auto 24px}
+
+/* MINI GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-bottom:14px}
+@media(max-width:480px){.g2{grid-template-columns:1fr}}
+.mini{background:rgba(255,255,255,.034);border:1px solid rgba(255,255,255,.075);border-radius:var(--rs);padding:17px 15px}
+.mini h4{font-size:.63rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.mini ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.mini li{font-size:.84rem;color:var(--light);display:flex;align-items:flex-start;gap:7px}
+.mini li::before{content:'✦';color:var(--violet);font-size:.62rem;margin-top:3px;flex-shrink:0}
+
+/* SCORE DOTS */
+.sdots{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:22px;flex-wrap:wrap}
+.sd{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.11)}
+.sd.on{background:var(--violet);box-shadow:0 0 6px var(--gv)}
+
+/* ═══ RECOMENDACIONES ═══ */
+.recs-title{font-size:.63rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;text-align:left;width:100%}
+
+/* TARJETA PRINCIPAL (primera recomendación) */
+.rec-main-card{
+  width:100%;
+  background:linear-gradient(130deg,rgba(165,112,255,.14),rgba(64,208,208,.08));
+  border:1px solid rgba(165,112,255,.38);
+  border-radius:var(--rs);
+  padding:24px 20px;
+  margin-bottom:12px;
+  position:relative;
+  overflow:hidden;
+}
+.rec-main-card::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle,rgba(165,112,255,.18),transparent 70%);
+  pointer-events:none;
+}
+.rec-star-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(165,112,255,.22);border:1px solid rgba(165,112,255,.45);
+  border-radius:100px;padding:3px 12px;
+  font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--violet);margin-bottom:12px;
+}
+.rec-main-name{font-size:1.28rem;font-weight:800;margin-bottom:6px;letter-spacing:-.01em}
+.rec-main-tag{font-size:.78rem;color:var(--teal);font-weight:600;margin-bottom:10px}
+.rec-why{font-size:.83rem;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.rec-for{font-size:.76rem;color:rgba(235,235,233,.4);font-weight:500}
+
+/* TARJETAS SECUNDARIAS (grid) */
+.recs-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;width:100%;margin-bottom:12px}
+@media(max-width:480px){.recs-grid{grid-template-columns:1fr}}
+.rec-card{
+  background:rgba(255,255,255,.036);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:var(--rs);padding:17px 15px;
+  display:flex;flex-direction:column;gap:6px;
+  transition:border-color .2s,background .2s;
+}
+.rec-card:hover{background:rgba(165,112,255,.06);border-color:rgba(165,112,255,.25)}
+.rec-num{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.rec-name{font-size:.97rem;font-weight:700}
+.rec-tag{font-size:.7rem;color:var(--teal);font-weight:600}
+.rec-why-sm{font-size:.78rem;color:var(--muted);line-height:1.55}
+
+/* WHEEL CARD */
+.wcard{background:linear-gradient(130deg,rgba(64,208,208,.07),rgba(165,112,255,.05));border:1px solid rgba(64,208,208,.2);border-radius:var(--rs);padding:20px 18px;margin-top:14px;width:100%}
+.wcard h4{font-size:.63rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.wsetup{font-size:1.08rem;font-weight:700;margin-bottom:6px}
+.wwhy{font-size:.83rem;color:var(--muted);line-height:1.62}
+
+/* NOTE */
+.note{width:100%;margin-top:12px;background:rgba(255,200,80,.055);border:1px solid rgba(255,200,80,.2);border-radius:var(--rs);padding:14px 17px;font-size:.83rem;color:rgba(255,220,120,.82);line-height:1.6;display:none}
+.note.show{display:block}
+
+/* ACTIONS */
+.div{width:100%;height:1px;background:rgba(255,255,255,.06);margin:20px 0}
+.ract{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:0;width:100%}
+.tc{text-align:center}
+</style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<div id="app">
+
+  <!-- INTRO -->
+  <div id="s-intro" class="scr on">
+    <div class="brand">Nova Roller</div>
+    <div class="pill">Quiz de nivel · Adultos</div>
+    <h1 class="h1">Tu próximo patín<br>te está <em>esperando</em></h1>
+    <p class="sub">Responde 9 preguntas y descubrimos tu nivel, los modelos que se adaptan a ti y el setup de ruedas ideal para tu patinaje.</p>
+    <button class="btn btn-p" onclick="startQuiz()">
+      Empezar quiz
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="s-quiz" class="scr">
+    <div class="brand">Nova Roller</div>
+    <div class="pw">
+      <div class="pt"><span id="qctr">Pregunta 1 de 9</span><span id="qpct">0%</span></div>
+      <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+    </div>
+    <div class="card" id="qcard">
+      <div class="qchip" id="qchip">Frecuencia</div>
+      <div class="qtxt"  id="qtxt"></div>
+      <div class="opts"  id="owrap"></div>
+      <div class="qnav">
+        <button class="btn btn-g" id="bbk" onclick="goBack()">← Atrás</button>
+        <button class="btn btn-p" id="bnx" onclick="goNext()" disabled>Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="s-result" class="scr">
+    <div class="brand">Nova Roller</div>
+    <div id="rinner" class="card tc" style="width:100%"></div>
+  </div>
+
+</div>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   ██████╗  EDITABLE CONFIG — todo lo que necesitas cambiar
+   ═══════════════════════════════════════════════════════════ */
+const CFG = {
+
+  /* WhatsApp */
+  wa:    "573017508202",   // número sin + ni espacios
+  waMsg: "Hola! Acabo de hacer el quiz de Nova Roller 🛼",
+
+  /* Límite de recomendaciones a mostrar (1–4) */
+  maxRecs: 4,
+
+  /* Umbral de peso (kg) para activar regla crítica en Nebulosa */
+  heavyThresholdKg: 80,  // si pesa MÁS de este valor → botas urbanas
+
+  /* Orden fijo de botas urbanas — NO cambiar el orden, solo los nombres si cambian */
+  urbanOrder: ["xpider","xblum","cromatic","mixty"],
+
+  /* PRODUCTOS */
+  p: {
+    bmpPlus:   { name:"Black Magic Pro Plus",     tag:"Principiante · recreativo",         why:"Ideal para iniciar con una bota semiprofesional de alto soporte, perfecta para ciclovía y pista.", forWho:"Para adultos que empiezan con foco recreativo y pesan hasta 90 kg." },
+    xproCan:   { name:"XPRO Canariam",            tag:"Bota firme desde el inicio",        why:"Sensación más sólida y estructurada para quien quiere una respuesta más directa desde el primer día.", forWho:"Para principiantes que buscan una bota con más presencia y firmeza." },
+    xpider:    { name:"XPIDER",                   tag:"Urbano #1 · soporte total",         why:"Bota urbana de talla fija con excelente soporte lateral. La primera elección para ciudad.", forWho:"Para quien busca estabilidad real en entornos urbanos." },
+    xblum:     { name:"XBLUM",                    tag:"Urbano #2 · versatilidad",          why:"Perfecto equilibrio entre soporte y movilidad. Se adapta a distintos ritmos y estilos urbanos.", forWho:"Para quien quiere agilidad sin sacrificar soporte." },
+    cromatic:  { name:"CROMATIC",                 tag:"Urbano #3 · técnico",               why:"Bota técnica urbana para quienes buscan más precisión y un control más fino del movimiento.", forWho:"Para usuarios en evolución que buscan más respuesta técnica." },
+    mixty:     { name:"MIXTY",                    tag:"Urbano #4 · comodidad + estilo",    why:"Combina soporte, comodidad y un perfil más dinámico. Ideal para rutas largas en ciudad.", forWho:"Para quien prioriza comodidad sin renunciar al rendimiento urbano." },
+    xpiderEpic:{ name:"XPIDER + chasis EPIC",     tag:"Slalom · precisión técnica",        why:"La combinación perfecta para slalom y trucos. El chasis EPIC de 4 ruedas en 80 mm entrega control total en movimientos cerrados.", forWho:"Para usuarios técnicos con enfoque en slalom o trucos de precisión." },
+    carbon:    { name:"Bota fibra de carbono",    tag:"Evolución premium",                 why:"La fibra de carbono entrega máxima transferencia de energía, precisión y una respuesta directa que las botas estándar no pueden igualar.", forWho:"Para patinadores intermedios listos para dar el salto a alto rendimiento." },
+    frSpeed:   { name:"Freeride Speed",           tag:"Velocidad avanzada",                why:"Diseñada para alta velocidad, downhill y patinaje de alto rendimiento. La bota para quienes no tienen límite de velocidad.", forWho:"Para Supernovas con foco en velocidad, fitness o downhill." },
+    frUrban:   { name:"Freeride Urban",           tag:"Urbano avanzado",                   why:"Potencia y control en entorno urbano exigente. Para quienes dominan la ciudad a alta velocidad con precisión técnica.", forWho:"Para Supernovas que hacen patinaje urbano avanzado." },
+  },
+
+  /* SETUPS DE RUEDAS */
+  wheels: {
+    neb:     { setup:"4 ruedas · 80–90 mm",     why:"Mayor área de contacto para ganar equilibrio y control desde cero. La estabilidad es la prioridad en esta etapa." },
+    novu100: { setup:"4 ruedas · 100 mm",        why:"Rueda grande que rueda más rápido y absorbe mejor el asfalto irregular. Ideal para empezar en ciudad con seguridad." },
+    novu110: { setup:"3×110 mm · chasis corto",  why:"Configuración ágil y dinámica. Más maniobrabilidad y flow urbano para quien ya tiene base sólida." },
+    carbon:  { setup:"3×110 mm  o  4×100–110 mm",why:"Elige según tu estilo: el trinero da agilidad, el cuatrinero más estabilidad. Ambos potencian la fibra de carbono." },
+    slalom:  { setup:"4×80 mm",                  why:"Rueda pequeña y precisa. El estándar para slalom, trucos y control técnico fino." },
+    sup:     { setup:"4×110 mm",                 why:"Máximo rodaje, velocidad y rendimiento. Para patinadores con dominio técnico completo." },
+  },
+
+  /* NIVELES */
+  lvl: {
+    nebulosa: {
+      name:"Nebulosa", emoji:"🌌", css:"lv-neb",
+      desc:"Estás en una etapa de descubrimiento. Construyes base, equilibrio y confianza. Cada rueda que gira te acerca a algo más grande.",
+      strengths:["Apertura total al aprendizaje","Construyes sin malos hábitos desde el inicio","Base sólida con potencial real de evolución"],
+      improve:["Practica el frenado de forma constante","Trabaja el equilibrio en línea recta","Gana confianza antes de subir de velocidad"],
+    },
+    nova: {
+      name:"Nova", emoji:"⭐", css:"lv-nov",
+      desc:"Ya tienes base y control. Estás en una etapa real de evolución. Tu patinaje toma forma propia y se abre a nuevos entornos.",
+      strengths:["Control en velocidad moderada","Te adaptas a distintas superficies","Técnica en desarrollo constante"],
+      improve:["Afina el frenado en velocidad alta","Trabaja los cambios de dirección rápidos","Explora entornos más variados y exigentes"],
+    },
+    supernova: {
+      name:"Supernova", emoji:"✨", css:"lv-sup",
+      desc:"Tienes dominio, potencia y confianza. Tu patinaje es técnico, seguro y veloz. Eres una fuerza en movimiento.",
+      strengths:["Alta confianza a velocidad","Técnica avanzada y control preciso","Dominio de maniobras de emergencia"],
+      improve:["Perfecciona la eficiencia de impulso","Explora terrenos más exigentes y técnicos","Trabaja resistencia en rutas largas"],
+    },
+  },
+
+  /* SUBTIPOS NOVA */
+  subtypes: {
+    nova_urban_entry: "Nova · Transición a Urbano",
+    nova_urban_mid:   "Nova · Urbano Intermedio",
+    nova_carbon:      "Nova · Evolución Premium",
+    nova_slalom:      "Nova · Slalom & Técnica",
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════
+   PREGUNTAS (9 preguntas)
+   ═══════════════════════════════════════════════════════════ */
+const QS = [
+  { chip:"Frecuencia", pts:true,
+    txt:"¿Con qué frecuencia patinas actualmente?",
+    opts:[{t:"Quiero empezar pronto",p:0},{t:"1 a 2 veces por semana",p:1},{t:"3 a 4 veces por semana",p:2},{t:"Casi todos los días",p:3}]
+  },
+  { chip:"Entorno", pts:true,
+    txt:"¿Dónde patinas o quieres patinar principalmente?",
+    opts:[{t:"No lo he pensado aún",p:0},{t:"Pista cubierta o ciclovía plana",p:1},{t:"Rutas urbanas y calles",p:2},{t:"Todo tipo de terreno y pendientes",p:3}]
+  },
+  { chip:"Frenado", pts:true,
+    txt:"¿Sabes frenar con control?",
+    opts:[{t:"No sé frenar todavía",p:0},{t:"Freno, pero con dificultad",p:1},{t:"Freno con seguridad",p:2},{t:"Controlo la velocidad a voluntad",p:3}]
+  },
+  { chip:"Velocidad", pts:true,
+    txt:"¿Cómo describes tu confianza a alta velocidad?",
+    opts:[{t:"No tengo confianza aún",p:0},{t:"Prefiero ir despacio",p:1},{t:"Me siento bien a velocidad moderada",p:2},{t:"Me siento muy seguro/a a alta velocidad",p:3}]
+  },
+  { chip:"Derrapes", pts:true, isDerrape:true,
+    txt:"¿Practicas derrapes o frenos de emergencia?",
+    opts:[{t:"Nunca, no sé cómo",p:0},{t:"Lo intento a veces",p:1},{t:"Sí, con control",p:2},{t:"Es parte de mi técnica habitual",p:3}]
+  },
+  { chip:"Prioridad", pts:true,
+    txt:"¿Qué buscas más en tu patinaje?",
+    opts:[{t:"Estabilidad total para aprender",p:0},{t:"Prefiero estabilidad sobre velocidad",p:1},{t:"Equilibrio entre ambas",p:2},{t:"Máxima agilidad y maniobrabilidad",p:3}]
+  },
+  { chip:"Peso", meta:"weight",
+    txt:"¿Cuánto pesas aproximadamente?",
+    opts:[{t:"Hasta 80 kg",v:"A"},{t:"81 a 120 kg",v:"C"}]
+  },
+  { chip:"Enfoque", meta:"focus",
+    txt:"¿Cuál es tu enfoque principal de patinaje?",
+    opts:[{t:"Recreativo, ciclovía o pista",v:"rec"},{t:"Urbano o ruta",v:"urban"},{t:"Slalom o trucos",v:"slalom"},{t:"Velocidad o fitness",v:"speed"}]
+  },
+  { chip:"Evolución", meta:"goal",
+    txt:"¿Qué quieres lograr con el patinaje?",
+    opts:[{t:"Ganar confianza y control básico",v:"confidence"},{t:"Salir a la calle y hacer ruta",v:"urban"},{t:"Subir de nivel técnico",v:"upgrade"},{t:"Máximo rendimiento y velocidad",v:"performance"}]
+  },
+];
+
+/* ═══════════════════════════════════════════════════════════
+   CLASIFICACIÓN
+   ═══════════════════════════════════════════════════════════ */
+function getLevel(pts){ return pts>=15?"supernova":pts>=7?"nova":"nebulosa"; }
+
+function getNovaSubtype(pts,focus,goal,weight,dp){
+  if(focus==="slalom") return "nova_slalom";
+  if(goal==="upgrade"&&pts>=11&&dp>=2) return "nova_carbon";
+  if((focus==="urban"||goal==="urban"||goal==="upgrade")&&pts>=11) return "nova_urban_mid";
+  return "nova_urban_entry";
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONSTRUIR LISTA DE RECOMENDACIONES (hasta maxRecs)
+   ═══════════════════════════════════════════════════════════ */
+function buildRecs(lvl, sub, focus, goal, weight){
+  const p=CFG.p, w=CFG.wheels, max=Math.min(CFG.maxRecs,4);
+  let recs=[], wheel, note=null;
+
+  /* —— URBANAS: extraer en orden fijo —— */
+  function urbanRecs(n){
+    return CFG.urbanOrder.slice(0,Math.min(n,max)).map(k=>p[k]);
+  }
+
+  if(lvl==="nebulosa"){
+    // ── REGLA CRÍTICA: peso > umbral → solo botas urbanas (sobrescribe todo) ──
+    const isHeavy = weight==="C"; // C = 81 kg o más
+    if(isHeavy){
+      recs=urbanRecs(max);
+      wheel=w.novu100;
+      note="Para más de 80 kg, las botas urbanas de talla fija ofrecen mayor soporte estructural, rigidez y seguridad. Esta selección está pensada para darte la mejor base desde el inicio.";
+    } else {
+      recs=[p.bmpPlus,p.xproCan].slice(0,max);
+      wheel=w.neb;
+    }
+  }
+  else if(lvl==="nova"){
+    if(sub==="nova_slalom"){
+      recs=[p.xpiderEpic];
+      wheel=w.slalom;
+      note="El chasis EPIC de 4 ruedas en 80 mm es el estándar para slalom y trucos de precisión.";
+    } else if(sub==="nova_carbon"){
+      recs=[p.carbon,p.xblum].slice(0,max);
+      wheel=w.carbon;
+    } else if(sub==="nova_urban_mid"){
+      recs=urbanRecs(max);
+      wheel=w.novu110;
+    } else {
+      // nova_urban_entry
+      recs=urbanRecs(max);
+      wheel=w.novu100;
+      if(weight==="C") note="Para tu peso recomendamos botas de talla fija con mayor soporte. Las botas urbanas aquí listadas son ideales para tu perfil.";
+    }
+  }
+  else {
+    // supernova
+    if(focus==="speed"||goal==="performance") recs=[p.frSpeed,p.frUrban].slice(0,max);
+    else recs=[p.frUrban,p.frSpeed].slice(0,max);
+    wheel=w.sup;
+  }
+
+  return {recs,wheel,note};
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER RECOMENDACIONES
+   ═══════════════════════════════════════════════════════════ */
+function renderRecs(recs){
+  if(!recs||!recs.length) return "";
+  const labels=["Principal","Opción 2","Opción 3","Opción 4"];
+  let html=`<div class="recs-title">Tu selección curada de patines</div>`;
+
+  /* PRIMERA TARJETA — protagonista */
+  const r0=recs[0];
+  html+=`
+  <div class="rec-main-card">
+    <div class="rec-star-badge">✦ ${labels[0]}</div>
+    <div class="rec-main-name">${r0.name}</div>
+    <div class="rec-main-tag">${r0.tag}</div>
+    <div class="rec-why">${r0.why}</div>
+    <div class="rec-for">${r0.forWho}</div>
+  </div>`;
+
+  /* TARJETAS SECUNDARIAS — grid 2 col */
+  if(recs.length>1){
+    html+=`<div class="recs-grid">`;
+    recs.slice(1).forEach((r,i)=>{
+      html+=`
+      <div class="rec-card">
+        <div class="rec-num">${labels[i+1]}</div>
+        <div class="rec-name">${r.name}</div>
+        <div class="rec-tag">${r.tag}</div>
+        <div class="rec-why-sm">${r.why}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  return html;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ESTADO Y FLUJO
+   ═══════════════════════════════════════════════════════════ */
+let cur=0, answers=[], state={};
+
+function startQuiz(){
+  cur=0; answers=new Array(QS.length).fill(null); state={pts:0};
+  show("quiz"); renderQ();
+}
+
+function renderQ(){
+  const q=QS[cur],tot=QS.length;
+  const pct=Math.round(cur/tot*100);
+  document.getElementById("qctr").textContent=`Pregunta ${cur+1} de ${tot}`;
+  document.getElementById("qpct").textContent=pct+"%";
+  document.getElementById("pf").style.width=pct+"%";
+  document.getElementById("qchip").textContent=q.chip;
+  document.getElementById("qtxt").textContent=q.txt;
+
+  const ow=document.getElementById("owrap"); ow.innerHTML="";
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="opt"+(answers[cur]?.idx===i?" sel":"");
+    b.innerHTML=`<span class="dot"></span><span>${o.t}</span>`;
+    b.onclick=()=>pick(i,b);
+    ow.appendChild(b);
+  });
+
+  document.getElementById("bbk").disabled=cur===0;
+  document.getElementById("bbk").style.opacity=cur===0?".3":"1";
+  document.getElementById("bnx").disabled=answers[cur]===null;
+  document.getElementById("bnx").textContent=cur===QS.length-1?"Ver mi resultado ✦":"Siguiente →";
+
+  const c=document.getElementById("qcard");
+  c.style.cssText="opacity:0;transform:translateY(10px);transition:opacity .28s ease,transform .28s ease";
+  requestAnimationFrame(()=>{c.style.opacity="1";c.style.transform="translateY(0)"});
+}
+
+function pick(idx,btn){
+  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel"));
+  btn.classList.add("sel"); answers[cur]={idx};
+  document.getElementById("bnx").disabled=false;
+}
+
+function goNext(){
+  const q=QS[cur],a=answers[cur]; if(!a) return;
+  if(q.pts)     { state.pts=(state.pts||0)+q.opts[a.idx].p; }
+  if(q.isDerrape){ state.dp=q.opts[a.idx].p; }
+  if(q.meta)    { state[q.meta]=q.opts[a.idx].v; }
+  if(cur===QS.length-1){ calcResult(); } else { cur++; renderQ(); }
+}
+
+function goBack(){
+  if(cur===0) return;
+  const q=QS[cur];
+  if(q.pts&&answers[cur]) state.pts-=q.opts[answers[cur].idx].p;
+  cur--; renderQ();
+}
+
+function calcResult(){
+  const pts=state.pts||0;
+  const lvl=getLevel(pts);
+  const focus=state.focus||"rec", goal=state.goal||"confidence", weight=state.weight||"A", dp=state.dp||0;
+  const sub=lvl==="nova"?getNovaSubtype(pts,focus,goal,weight,dp):null;
+  const {recs,wheel,note}=buildRecs(lvl,sub,focus,goal,weight);
+  const ld=CFG.lvl[lvl];
+  const maxPts=18;
+
+  const gL={confidence:"Ganar confianza",urban:"Hacer ruta urbana",upgrade:"Subir nivel técnico",performance:"Máximo rendimiento"};
+  const fL={rec:"Recreativo / pista",urban:"Urbano / ruta",slalom:"Slalom / trucos",speed:"Velocidad / fitness"};
+  const wL={A:"Hasta 80 kg",C:"81–120 kg"};
+  const dots=Array.from({length:maxPts},(_,i)=>`<div class="sd${i<pts?" on":""}"></div>`).join("");
+  const mainRecName=recs[0]?.name||"";
+
+  document.getElementById("rinner").className=`card tc ${ld.css}`;
+  document.getElementById("rinner").innerHTML=`
+    <div class="rbadge">${ld.emoji} Nivel ${ld.name}</div><br>
+    ${sub?`<div class="rsubbadge">◆ ${CFG.subtypes[sub]}</div>`:""}
+    <div class="rtitle">${ld.name}</div>
+    <p class="rdesc">${ld.desc}</p>
+    <div class="sdots">${dots}</div>
+
+    <div class="g2">
+      <div class="mini"><h4>Tus fortalezas</h4><ul>${ld.strengths.map(s=>`<li>${s}</li>`).join("")}</ul></div>
+      <div class="mini"><h4>A seguir trabajando</h4><ul>${ld.improve.map(s=>`<li>${s}</li>`).join("")}</ul></div>
+    </div>
+    <div class="g2" style="margin-bottom:20px">
+      <div class="mini"><h4>Tu enfoque</h4><ul><li>${fL[focus]}</li></ul></div>
+      <div class="mini"><h4>Objetivo · Peso</h4><ul><li>${gL[goal]}</li><li>${wL[weight]}</li></ul></div>
+    </div>
+
+    ${renderRecs(recs)}
+
+    <div class="note${note?" show":""}">${note?"⚠️ "+note:""}</div>
+
+    <div class="wcard">
+      <h4>Setup de ruedas recomendado</h4>
+      <div class="wsetup">${wheel.setup}</div>
+      <div class="wwhy">${wheel.why}</div>
+    </div>
+
+    <div class="div"></div>
+    <div class="ract">
+      <a class="btn btn-wa"
+        href="https://wa.me/${CFG.wa}?text=${encodeURIComponent(CFG.waMsg+' Mi nivel es '+ld.name+(sub?" – "+CFG.subtypes[sub]:"")+'. Mi primera recomendación: '+mainRecName+'.')}"
+        target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.563 4.14 1.535 5.875L0 24l6.335-1.505A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.017-1.382l-.36-.214-3.727.976.994-3.634-.234-.374A9.818 9.818 0 0112 2.182c5.424 0 9.818 4.394 9.818 9.818 0 5.424-4.394 9.818-9.818 9.818z"/></svg>
+        Hablar con Nova Roller
+      </a>
+      <button class="btn btn-g" onclick="startQuiz()">Repetir el quiz</button>
+    </div>
+  `;
+  show("result");
+}
+
+function show(id){
+  document.querySelectorAll(".scr").forEach(s=>s.classList.remove("on"));
+  document.getElementById("s-"+id).classList.add("on");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CANVAS ESPACIAL
+   ═══════════════════════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById("cvs"),x=c.getContext("2d");
+  let W,H,stars=[],t=0;
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;mkS()}
+  function mkS(){stars=[];for(let i=0;i<320;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.55+.12,a:Math.random()*.9+.1,sp:Math.random()*.007+.001,ph:Math.random()*Math.PI*2})}
+  function draw(){
+    x.clearRect(0,0,W,H);
+    const g=x.createRadialGradient(W*.5,H*.44,0,W*.5,H*.44,Math.max(W,H)*.8);
+    g.addColorStop(0,"#1a1042");g.addColorStop(.48,"#0c0826");g.addColorStop(1,"#040113");
+    x.fillStyle=g;x.fillRect(0,0,W,H);
+    [[W*.1,H*.2,W*.44,H*.36,"165,112,255",.082],[W*.86,H*.72,W*.36,H*.3,"64,208,208",.062],[W*.52,H*.5,W*.22,H*.2,"165,112,255",.038],[W*.3,H*.75,W*.28,H*.22,"64,208,208",.042]].forEach(([nx,ny,rx,ry,col,a])=>{
+      const ng=x.createRadialGradient(nx,ny,0,nx,ny,Math.max(rx,ry));
+      ng.addColorStop(0,`rgba(${col},${a})`);ng.addColorStop(.55,`rgba(${col},${a*.3})`);ng.addColorStop(1,`rgba(${col},0)`);
+      x.save();x.scale(rx/Math.max(rx,ry),ry/Math.max(rx,ry));x.fillStyle=ng;x.beginPath();x.arc(nx/(rx/Math.max(rx,ry)),ny/(ry/Math.max(rx,ry)),Math.max(rx,ry),0,Math.PI*2);x.fill();x.restore();
+    });
+    t+=.016;stars.forEach(s=>{const al=s.a*(.42+.58*Math.sin(t*s.sp*60+s.ph));x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);x.fillStyle=`rgba(235,235,233,${al})`;x.fill()});
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener("resize",resize);resize();draw();
+})();
+</script>
+</body>
+</html>
